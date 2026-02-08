@@ -1,0 +1,71 @@
+---
+title: "Laboratorio 01"
+author: "Pinguinos 9.0"
+date: "07/02/2026"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+``` 
+```{r Librerías de uso}
+library('readxl')
+library('ggplot2')
+library('caTools')
+library('rpart')
+```
+```{r carga y prepara datos}
+
+# Concatena la ruta actual del proyecto R con la carpeta de datos locales
+ruta = paste0(getwd() , '/data')
+
+# establece ruta de los datos
+setwd(ruta)
+
+# carga de datos desde el archivo fuente
+dat.Originales <- read.csv(
+  "agaricus-lepiota.data",
+  header = FALSE,
+  sep = ",",
+  stringsAsFactors = FALSE,
+  na.strings = "?"
+)
+
+# elimina los datos no significativos para estudios
+datos <- dat.Originales[c(1,2,3,5,6,8,9,10,22,23)]
+
+# asignar nombres
+colnames(datos) <- c(
+  "class","cap_shape","cap_surface","bruises","odor",
+  "gill_spacing","gill_size","gill_color",
+  "population","habitat"
+)
+
+# exploración rápida de los datos
+head(datos, n=30)
+
+# manejo de NA 
+datos[is.na(datos)] <- "unknown"
+
+# crear variable derivada 
+datos$Fac_Odor <- ifelse(datos$odor %in% c("a","l"),
+                         "pleasant",
+                         "strong")
+
+# crear factores
+datos$class        <- factor(datos$class)
+datos$cap_shape    <- factor(datos$cap_shape)
+datos$cap_surface  <- factor(datos$cap_surface)
+datos$bruises      <- factor(datos$bruises)
+datos$odor         <- factor(datos$odor)
+datos$gill_spacing <- factor(datos$gill_spacing)
+datos$gill_size    <- factor(datos$gill_size)
+datos$gill_color   <- factor(datos$gill_color)
+datos$population   <- factor(datos$population)
+datos$habitat      <- factor(datos$habitat)
+datos$Fac_Odor     <- factor(datos$Fac_Odor)
+
+# imprime como tabla la estructura del set de datos
+table(str(datos))
+```
+
