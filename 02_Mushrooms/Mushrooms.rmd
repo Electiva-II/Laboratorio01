@@ -48,9 +48,10 @@ head(datos, n=30)
 datos[is.na(datos)] <- "unknown"
 
 # crear variable derivada 
-datos$Fac_Odor <- ifelse(datos$odor %in% c("a","l"),
+datos$Fac_Odor <- ifelse(datos$odor %in% c("almond","anise"),
                          "pleasant",
                          "strong")
+
 
 # crear factores
 datos$class        <- factor(datos$class)
@@ -68,6 +69,7 @@ datos$Fac_Odor     <- factor(datos$Fac_Odor)
 # imprime como tabla la estructura del set de datos
 table(str(datos))
 ```
+```{r}
 # Parte a del ejercicio 3: se crea la semilla.
 set.seed(1024)
 
@@ -138,3 +140,65 @@ ggplot(datos, aes(x = bruises, fill = class)) +
   
  
   theme_minimal()
+```  
+```{r }  
+
+
+### ===============================
+### 1. Variables predictoras
+### ===============================
+
+X_train <- train[, -1]
+X_test  <- test[, -1]
+
+y_train <- train$class
+y_test  <- test$class
+
+
+### ===============================
+### 2. Modelo ingenuo (baseline)
+### ===============================
+
+clase_mayoritaria <- names(which.max(table(y_train)))
+
+pred_naive <- rep(clase_mayoritaria, length(y_test))
+
+acc_naive <- mean(pred_naive == y_test)
+
+
+### ===============================
+### 3. Modelo GLM (Regresión Logística)
+### ===============================
+
+# convertir clase a binaria
+train$class_bin <- ifelse(train$class == "p", 1, 0)
+test$class_bin  <- ifelse(test$class == "p", 1, 0)
+
+modelo_glm <- glm(
+  class_bin ~ . - class,
+  data = train,
+  family = binomial
+)
+
+# probabilidades
+prob_pred <- predict(modelo_glm, test, type = "response")
+
+# clases finales
+pred_glm <- ifelse(prob_pred > 0.5, 1, 0)
+
+acc_glm <- mean(pred_glm == test$class_bin)
+
+
+### ===============================
+### 4. Comparación de resultados
+### ===============================
+
+resultados <- data.frame(
+  Modelo = c("Ingenuo (Baseline)", "Regresión Logística (GLM)"),
+  Accuracy = c(acc_naive, acc_glm)
+)
+
+resultados
+
+
+```
